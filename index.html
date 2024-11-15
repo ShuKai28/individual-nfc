@@ -5,18 +5,40 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF Viewer with Login</title>
+  <!-- Firebase JS SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js"></script>
-  <script src="firebaseConfig.js"></script>
   <style>
-    #pdfViewer, #logoutBtn {
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    #loginSection, #pdfViewer {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #pdfViewer {
       display: none;
     }
     #loginForm {
       display: flex;
       flex-direction: column;
-      max-width: 300px;
-      margin: auto;
+    }
+    input, button {
+      margin-bottom: 10px;
+      padding: 10px;
+      font-size: 16px;
     }
     iframe {
       width: 100%;
@@ -25,7 +47,7 @@
   </style>
 </head>
 <body>
-  <!-- Login Form -->
+  <!-- Login Section -->
   <div id="loginSection">
     <h1>Login to View PDF</h1>
     <form id="loginForm">
@@ -35,59 +57,72 @@
     </form>
   </div>
 
-  <!-- PDF Viewer and Logout Button -->
+  <!-- PDF Viewer Section -->
   <div id="pdfViewer">
     <h1>PDF Viewer</h1>
     <button id="logoutBtn">Logout</button>
-    <iframe src="52___090-1-600.pdf"></iframe>
+    <iframe src="public/example.pdf"></iframe>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const auth = firebase.auth();
+    // Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBf6HVZWz4mH8AAcLyQwMTLdMz0039l1PE",
+  authDomain: "individual-nfc.firebaseapp.com",
+  projectId: "individual-nfc",
+  storageBucket: "individual-nfc.firebasestorage.app",
+  messagingSenderId: "127385211914",
+  appId: "1:127385211914:web:a1ff1a070820e5830ffbf3",
+  measurementId: "G-M4B4Q7TJ4D"
+};
 
-      // Login function
-      document.getElementById("loginForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
 
-        auth.signInWithEmailAndPassword(email, password)
-          .then((userCredential) => {
-            showPdfViewer();
-          })
-          .catch((error) => {
-            alert("Error: " + error.message);
-          });
-      });
+    // Firebase Authentication
+    const auth = firebase.auth();
 
-      // Logout function
-      document.getElementById("logoutBtn").addEventListener("click", () => {
-        auth.signOut().then(() => {
-          showLoginForm();
+    // Login function
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          showPdfViewer();
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
         });
+    });
+
+    // Logout function
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      auth.signOut().then(() => {
+        showLoginForm();
       });
+    });
 
-      // Function to show the PDF Viewer and hide the Login Form
-      function showPdfViewer() {
-        document.getElementById("loginSection").style.display = "none";
-        document.getElementById("pdfViewer").style.display = "block";
+    // Function to show the PDF Viewer and hide the Login Form
+    function showPdfViewer() {
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("pdfViewer").style.display = "block";
+    }
+
+    // Function to show the Login Form and hide the PDF Viewer
+    function showLoginForm() {
+      document.getElementById("loginSection").style.display = "block";
+      document.getElementById("pdfViewer").style.display = "none";
+    }
+
+    // Check if the user is logged in
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        showPdfViewer(); // User is logged in
+      } else {
+        showLoginForm(); // User is not logged in
       }
-
-      // Function to show the Login Form and hide the PDF Viewer
-      function showLoginForm() {
-        document.getElementById("loginSection").style.display = "block";
-        document.getElementById("pdfViewer").style.display = "none";
-      }
-
-      // Check if the user is logged in
-      auth.onAuthStateChanged((user) => {
-        if (user) {
-          showPdfViewer(); // User is logged in
-        } else {
-          showLoginForm(); // User is not logged in
-        }
-      });
     });
   </script>
 </body>
